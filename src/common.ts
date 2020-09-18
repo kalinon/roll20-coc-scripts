@@ -1,50 +1,25 @@
-/// <reference path="..\roll20.d.ts" />
-
-
-interface SkillCheckResults {
-    test: {
-        roll_text: string;
-        roll_value: any;
-        passed: boolean;
-    }
-    attr: {
-        name: string;
-        current: number;
-        max: number;
-        value: number;
-    }
-    change: {
-        roll_text: string;
-        roll_value: number;
-    }
-}
-
-
-function skillCheck(value: number, roll: number): boolean {
-    if (!roll) {
-        roll = randomInteger(100);
-    }
-    return roll <= value;
-}
-
-function sendSkillMessage(msg: string) {
-    sendChat('Skill Doctor', msg);
-}
-
-function createAttribute(char_id: string, name: string, current: string, max?: string): Attribute {
-    log(`Creating default cthulhu_mythos attribute for ${char_id}`)
-    createObj('attribute', {
-        _characterid: char_id,
-        name: name,
-        current: current,
-        max: max,
-    });
-    return getAttribute(char_id, name);
+const ICONS = {
+    cthulhu: 'https://banner2.cleanpng.com/20180614/pwg/kisspng-the-call-of-cthulhu-cthulhu-mythos-miskatonic-univ-5b22d951ef43c5.09088352152901051398.jpg',
+    elder: 'https://lh3.googleusercontent.com/proxy/DbU9DnMYkuNJaDvSsh2xGD7cdITNqF9m7LGAGFnRHY7lkLhjSvGXJ0utdFcAIwwPTlSgeF1iSTz9zeiNWJVBPxkJJmdD-M0UmHU1liXWZtROdmwIa1nQpI2_99ZYI-xn6-u7VwTSlNeAN6fw',
 }
 
 // -------------------------
 // Formatting functions
 // -------------------------
+
+function send_chat(speakingAs: string, message: string, callback?: (operations: ChatEventData[]) => void, options?: ChatMessageHandlingOptions): void {
+    if (!options) {
+        options = {
+            noarchive: true,
+        }
+    }
+
+    sendChat(speakingAs, wrap_text(message), callback, options);
+}
+
+function wrap_text(value: string): string {
+    return `${HtmlParts.divider}<div style="padding-top: 10px; padding-bottom: 10px;">${value}</div>`;
+}
 
 function str_bold(value: string): string {
     return '<b>' + value + '</b>'
@@ -94,11 +69,11 @@ function getUpdateAttrMessage(result: SkillCheckResults, silent: boolean = false
     }
 
     if (silent) {
-        return attr_name + ' ' +
+        return (result.msg === null ? '' : `${result.msg} - `) + attr_name + ' ' +
             (change_sym + String(diff)) +
             ' : ' + curr_val + ' -> ' + result.attr.value;
     } else {
-        return str_bold(attr_name) + ' ' +
+        return (result.msg === null ? '' : `${result.msg} - `) + str_bold(attr_name) + ' ' +
             str_color(change_sym + String(diff), (diff >= 0 ? '#43a52d' : '#d73131'), true) +
             mod_text + ' : ' + str_code(curr_val + ' -> ' + result.attr.value);
     }
@@ -111,10 +86,13 @@ function skillImproveTestMsg(attr_name: string, current: number, roll: number): 
         str_bold('Result') + ': ' + (passed ? str_color_passed('Passed!') : str_color_failed('Failed!'))
 }
 
-function sendResults(action: string, charName: string, testResults: string[], updateResults: string[]) {
+function sendResults(action: string, charName: string, testResults: string[], updateResults: string[], otherMsgs: string[] = []) {
     let message = '<p>' + str_bold(charName + ' - Results for ' + action) + '</p>' + str_newline();
     message += createList('Skill tests', testResults);
     message += createList('Skill changes', updateResults);
+    if (otherMsgs.length > 0) {
+        message += createList('Other', otherMsgs);
+    }
     log(message);
     sendSkillMessage(message);
 }
@@ -122,7 +100,10 @@ function sendResults(action: string, charName: string, testResults: string[], up
 function createList(title: string, items: string[]): string {
     let message = '';
     if (items.length > 0) {
-        message += title + ': ' + str_newline() + '<ul>';
+        if (title != '') {
+            message += title + ': '
+        }
+        message += str_newline() + '<ul>';
         items.forEach(value => {
             if (value !== undefined && value != null) {
                 message += str_list_item(value)
@@ -133,17 +114,61 @@ function createList(title: string, items: string[]): string {
     return message;
 }
 
+
+// -------------------------
+// Character functions
+// -------------------------
+
+function createAttribute(char_id: string, name: string, current: string, max: string = ''): Attribute {
+    log(`Creating default ${name} attribute for ${char_id}`)
+    createObj('attribute', {
+        _characterid: char_id,
+        name,
+        current,
+        max,
+    });
+    return getAttribute(char_id, name);
+}
+
 function getAttribute(character_id: string, name: string): Attribute {
     return <Attribute>findObjs({
         type: 'attribute',
         characterid: character_id,
-        name: name
+        name
     }, {
         caseInsensitive: true
     })[0];
 }
 
-function getAttributeInt(character_id: string, name: string): number {
-    return parseInt(getAttribute(character_id, name).get('current'));
+function getOrCreateAttribute(character_id: string, name: string): Attribute | null {
+    // Check to see if it has a current value
+    const attr = getAttribute(character_id, name);
+    if (attr === undefined) {
+        log('Found missing skill: ' + name + ' for ' + character_id + '.');
+        let default_val = getDefaultValue(name, character_id);
+
+        if (default_val < 0) {
+            return null;
+        } else {
+            return createAttribute(character_id, name, default_val.toString());
+        }
+    } else {
+        return attr;
+    }
 }
+
+function getAttributeInt(character_id: string, name: string): number {
+    const attr = getAttribute(character_id, name);
+    if (attr === undefined) {
+        return -1;
+    } else {
+        let val = getAttribute(character_id, name).get('current');
+        if (val === '') {
+            return -1;
+        }
+        return parseInt(val);
+    }
+}
+
+
 

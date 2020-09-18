@@ -1,27 +1,30 @@
 class LuckRefresh {
 
     public max_luck = 99;
-    private readonly char_name: string;
+
+    get char_name(): string {
+        return this.character.get('name');
+    }
 
     constructor(protected player_id: string, private character: Character) {
-        this.char_name = this.character.get('name');
     }
 
     public run(): void {
         log(`Refreshing luck for ${this.char_name}`);
         const attr = this.getLuck();
         const result = this.improveLuck(attr);
+        if (result.test !== null) {
+            log(`${this.char_name} rolled: ${result.test.roll_value} current: ${result.attr.current} `
+                + `passed: ${result.test.passed} gained: ${result.change.roll_value} total: ${result.attr.value}`);
 
-        log(`${this.char_name} rolled: ${result.test.roll_value} current: ${result.attr.current} `
-            + `passed: ${result.test.passed} gained: ${result.change.roll_value} total: ${result.attr.value}`);
+            const testMsg = skillImproveTestMsg(result.attr.name, result.attr.current, result.test.roll_value)
+            const updateMsg = getUpdateAttrMessage(result);
+            log(`${this.char_name} - ${updateMsg}`);
 
-        const testMsg = skillImproveTestMsg(result.attr.name, result.attr.current, result.test.roll_value)
-        const updateMsg = getUpdateAttrMessage(result);
-        log(`${this.char_name} - ${updateMsg}`);
-
-        attr.set('current', result.attr.value.toString());
-        attr.set('max', result.attr.max.toString());
-        sendResults('Luck Refresh', this.char_name, [testMsg], [updateMsg])
+            attr.set('current', result.attr.value.toString());
+            attr.set('max', result.attr.max.toString());
+            sendResults('Luck Refresh', this.char_name, [testMsg], [updateMsg])
+        }
     }
 
     private getLuck(): Attribute {
@@ -57,6 +60,7 @@ class LuckRefresh {
                 passed,
             },
             change: improvement,
+            msg: null,
         };
     }
 

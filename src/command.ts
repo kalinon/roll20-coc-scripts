@@ -26,15 +26,17 @@ class Command {
 
     public help() {
         let list = createList('Available commands', [
-                str_code('!luckplz') + ' - Refresh your luck',
-                // str_code('!levelup') + ' - Perform a level up!',
-                str_code('!newday') + ' - Update your daily sanity value',
+                '[' + str_code('!luckplz  ') + '](!luckplz) - Refresh your luck',
+                '[' + str_code('!levelup  ') + '](!levelup) - Perform a level up!',
+                '[' + str_code('!newday   ') + '](!newday) - Update your daily sanity value',
+                '[' + str_code('!validate ') + '](!validate) - Validate/fix characters',
             ]
         );
+
         // @ts-ignore
-        sendChat('Skill Doctor', list, null, {
+        send_chat('Skill Doctor', list, null, {
             noarchive: true,
-        })
+        });
     }
 
     public process(): void {
@@ -45,16 +47,21 @@ class Command {
                 let job = new LuckRefresh(this.player_id, char);
                 job.run();
             });
-            // } else if (this.msg.content === '!levelup') {
-            //     this.characters().forEach(char => {
-            //         let job = new LevelUp(this.player_id, char);
-            //         job.run();
-            //     });
+        } else if (this.msg.content === '!levelup') {
+            this.characters().forEach(char => {
+                let job = new LevelUp(this.player_id, char);
+                job.run();
+            });
         } else if (this.msg.content === '!newday') {
             this.characters().forEach(char => {
                 let job = new NewDay(this.player_id, char);
                 job.run();
             });
+        } else if (this.msg.content === '!validate') {
+            this.characters().forEach(char => {
+                validateCharacter(char);
+            });
         }
+
     }
 }
