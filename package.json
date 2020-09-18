@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@types/cheerio": "^0.22.21",
+    "@types/underscore": "^1.10.22"
+  }
+}
