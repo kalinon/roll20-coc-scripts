@@ -24,7 +24,7 @@ class HtmlParts {
     }
 
     public static get divider(): string {
-        return `<div style="padding: 10px; text-align: center; background-color: ${this.nextColor}">` +
+        return `<div style="padding: 7px; text-align: center; background-color: ${this.nextColor}">` +
             `${HtmlParts.elder_sign}${HtmlParts.elder_sign}${HtmlParts.elder_sign}${HtmlParts.elder_sign}${HtmlParts.elder_sign}</div>`;
     }
 }

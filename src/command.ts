@@ -28,8 +28,8 @@ class Command {
         let list = createList('Available commands', [
                 '[' + str_code('!luckplz  ') + '](!luckplz) - Refresh your luck',
                 '[' + str_code('!levelup  ') + '](!levelup) - Perform a level up!',
-                '[' + str_code('!newday   ') + '](!newday) - Update your daily sanity value',
-                '[' + str_code('!validate ') + '](!validate) - Validate/fix characters',
+                '[' + str_code('!newday   ') + '](!newday) - Update your daily sanity value and heal',
+                // '[' + str_code('!validate ') + '](!validate) - Validate/fix characters',
             ]
         );
 
