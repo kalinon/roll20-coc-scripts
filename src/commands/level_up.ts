@@ -20,8 +20,9 @@ class LevelUp {
     public run(): void {
         this.skills.forEach(obj => {
             let checkedSkill = obj.get('name');
-            if (checkedSkill && checkedSkill.indexOf('_checkbox') !== -1) {
-                const skill_name = checkedSkill.substring(0, checkedSkill.indexOf('_checkbox'));
+            const checkedIndex = checkedSkill.indexOf('_checkbox');
+            if (checkedSkill && checkedIndex !== -1 && obj.get('current') === 'on') {
+                const skill_name = checkedSkill.substring(0, checkedIndex);
                 this.improveSkill(skill_name);
             }
         });

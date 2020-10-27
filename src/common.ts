@@ -1,6 +1,6 @@
 const ICONS = {
-    cthulhu: 'https://banner2.cleanpng.com/20180614/pwg/kisspng-the-call-of-cthulhu-cthulhu-mythos-miskatonic-univ-5b22d951ef43c5.09088352152901051398.jpg',
-    elder: 'https://lh3.googleusercontent.com/proxy/DbU9DnMYkuNJaDvSsh2xGD7cdITNqF9m7LGAGFnRHY7lkLhjSvGXJ0utdFcAIwwPTlSgeF1iSTz9zeiNWJVBPxkJJmdD-M0UmHU1liXWZtROdmwIa1nQpI2_99ZYI-xn6-u7VwTSlNeAN6fw',
+    cthulhu: 'https://s3.spoved.io/public/images/coc/kisspng-the-call-of-cthulhu-cthulhu-mythos-miskatonic-univ-5b22d951ef43c5.09088352152901051398.jpg',
+    elder: 'https://s3.spoved.io/public/images/coc/elder_sign.png',
 }
 
 // -------------------------
