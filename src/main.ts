@@ -13,9 +13,8 @@ on('ready', function () {
         _type: 'character',
     });
 
-    results.forEach(value => {
-        const char = (<Character>value);
+    results.forEach((value) => {
+        const char = <Character>value;
         validateCharacter(char);
     });
 });
-
